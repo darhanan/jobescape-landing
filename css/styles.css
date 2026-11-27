@@ -147,7 +147,9 @@ h1 em{font-style:normal;color:var(--accent)}
 
 /* ---------- desktop ---------- */
 @media (min-width:768px){
-  :root{--gx:32px}
+  :root{--gx:clamp(32px,3.4vw,72px)}
+  /* full-width layout: content runs edge to edge, only the side gutters (--gx) stay */
+  .wrap{max-width:none}
   .nav .wrap{height:72px;gap:8px}
   .links{display:flex;gap:4px;margin-right:12px}
   .links a{height:40px;display:flex;align-items:center;padding:0 12px;border-radius:var(--r-s);font-size:16px;font-weight:500;color:var(--fg-2)}
@@ -168,7 +170,7 @@ h1 em{font-style:normal;color:var(--accent)}
   .vc .trust{gap:48px}
   .vc .bleed img{object-position:100% 20%}
   .vc .bleed::after{background:linear-gradient(90deg,rgb(var(--scrim)) 0%,rgba(var(--scrim),.7) 30%,rgba(var(--scrim),0) 56%),linear-gradient(0deg,rgba(var(--scrim),.75) 0,rgba(var(--scrim),0) 42%),linear-gradient(180deg,rgba(var(--scrim),.55) 0,rgba(var(--scrim),0) 150px)}
-  .vc .scroll{display:flex;align-items:center;gap:6px;position:absolute;z-index:3;right:max(32px,calc(50% - 568px));bottom:76px;font-size:15px;font-weight:500;color:var(--on-dark-2)}
+  .vc .scroll{display:flex;align-items:center;gap:6px;position:absolute;z-index:3;right:var(--gx);bottom:76px;font-size:15px;font-weight:500;color:var(--on-dark-2)}
   .vc .scroll:hover{color:var(--on-dark)}
   .vc .scroll .i{width:16px;height:16px;animation:nudge 2.4s ease-in-out infinite}
   @keyframes nudge{0%,100%{transform:none}50%{transform:translateY(3px)}}
@@ -380,7 +382,10 @@ section[id]{scroll-margin-top:56px}
   .eco-list .bar i{background:var(--accent)}
   .eco-list button:focus-visible{border-radius:var(--r-s)}
 
+  /* rows and gap scale with the content width, so every tile keeps the shape it has at 1136px (a 1200px screen) */
+  #roles .wrap{container-type:inline-size}
   .mosaic{grid-template-columns:1fr 1.3fr 1fr;grid-template-rows:230px 230px 170px;grid-template-areas:"t1 big t2" "t4 big t5" "t4 t6 t5";gap:10px}
+  .mosaic{grid-template-rows:calc(100cqw*230/1136) calc(100cqw*230/1136) calc(100cqw*170/1136);gap:calc(100cqw*10/1136)}
   .tile-p,.tile-p.big,.tile-p.t6{aspect-ratio:auto}
   .tile-p.t1{grid-area:t1}.tile-p.t2{grid-area:t2}.tile-p.big{grid-area:big}.tile-p.t4{grid-area:t4}.tile-p.t5{grid-area:t5}.tile-p.t6{grid-area:t6}
   .tile-p.big>b{font-size:26px}
@@ -391,12 +396,14 @@ section[id]{scroll-margin-top:56px}
   .st-words{flex-direction:row;gap:40px;font-size:80px}
   .st-words i{display:block;font-style:normal;font-size:28px;opacity:.6}
 
-  .sec-head.row{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;max-width:1200px;text-align:left;margin-left:0;margin-right:0}
+  .sec-head.row{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;max-width:none;text-align:left;margin-left:0;margin-right:0}
+  .sec-head.row>div:first-child{max-width:680px}
   .sec-head.row .arrows{display:flex;gap:8px;flex:none}
   .arr{width:48px;height:48px;border-radius:var(--r-full);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;transition:background .15s}
   .arr:hover{background:var(--sunk)}
-  .prog-track{gap:16px;padding:0 max(var(--gx),calc((100% - 1200px)/2 + var(--gx)));scroll-padding:0 max(var(--gx),calc((100% - 1200px)/2 + var(--gx)))}
-  .prog{flex:0 0 360px;aspect-ratio:4/4.4}
+  .prog-track{gap:16px;padding:0 var(--gx);scroll-padding:0 var(--gx)}
+  /* cards grow with the screen so about 3.5 stay in view and the row still scrolls */
+  .prog{flex:0 0 clamp(360px,26vw,624px);max-width:none;aspect-ratio:4/4.4}
   .prog-txt{padding:24px}
   .prog .btn-white{display:inline-flex;height:44px;padding:0 20px;font-size:15px}
 
@@ -405,8 +412,10 @@ section[id]{scroll-margin-top:56px}
 
   .cert{display:grid;grid-template-columns:1.1fr 1fr;gap:72px;align-items:center}
   .cert-txt{text-align:left}
+  /* certificate.jpg is 380px wide: stop it at ~1.5x so it stays sharp while the box grows */
+  .cert-media img{max-width:560px}
 
-  .rev-track{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;max-width:1200px;margin:0 auto;padding:0 var(--gx);overflow:visible}
+  .rev-track{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;max-width:none;margin:0 auto;padding:0 var(--gx);overflow:visible}
 
   .know{grid-template-columns:repeat(3,1fr);gap:16px}
   .k-card{padding:28px}
@@ -421,4 +430,57 @@ section[id]{scroll-margin-top:56px}
   .f-top{flex-direction:row;justify-content:space-between}
   .f-cols{grid-template-columns:repeat(3,auto);gap:72px}
   .f-cols a{padding:6px 0}
+}
+
+/* ---------- very wide screens: cap the layout at 2400px and keep it centred ---------- */
+@media (min-width:2561px){
+  .wrap,.rev-track{max-width:2400px}
+  .prog-track{padding:0 calc((100% - 2400px)/2 + var(--gx));scroll-padding:0 calc((100% - 2400px)/2 + var(--gx))}
+  .vc .scroll{right:calc((100% - 2400px)/2 + var(--gx))}
+}
+
+/* ---------- hero → #product: the hero stays pinned, blurs and dims, the page slides over it ----------
+   main.js writes the scroll progress (0..1) to --hp on .hero and adds .moving once it starts.
+   Off with reduced motion, and on screens too short to show the hero copy in one view. */
+@media (prefers-reduced-motion:no-preference) and (min-height:520px){
+  .vc .hero{position:sticky;top:0;height:100vh;height:100svh;z-index:0}
+  /* everything after the hero covers it; :where() keeps the own backgrounds of .soft, .final and .foot */
+  :where(.vc .hero~section,.vc .hero~.zoom-scene,.vc .hero~footer){position:relative;z-index:1;background-color:var(--page)}
+  #product{scroll-margin-top:0}
+  .vc .hero.covered{visibility:hidden}
+  /* phone: dimming and fading only, no blur */
+  .vc .hero.moving .bleed{opacity:calc(1 - var(--hp,0)*.6)}
+  .vc .hero.moving .copy,.vc .hero.moving .scroll{opacity:clamp(0,1 - var(--hp,0)*2,1)}
+}
+@media (prefers-reduced-motion:no-preference) and (min-height:520px) and (min-width:768px){
+  /* scale hides the soft edge the blur leaves at the frame */
+  .vc .hero.moving .bleed{filter:blur(calc(var(--hp,0)*20px));transform:scale(calc(1 + var(--hp,0)*.06))}
+  .vc .hero.moving .copy,.vc .hero.moving .scroll{filter:blur(calc(min(var(--hp,0)*2,1)*6px))}
+}
+
+/* ---------- zoom scene (desktop): #roles + .statement ----------
+   .zoom-scene is 300vh, .zoom-stage pins for 200vh of scroll. main.js turns it on (.is-zoom) and drives
+   transform / opacity from the scroll progress. Off on phones, short screens and with reduced motion. */
+@media (min-width:768px) and (min-height:600px) and (prefers-reduced-motion:no-preference){
+  .zoom-scene.is-zoom{height:300vh}
+  .is-zoom .zoom-stage{position:sticky;top:0;height:100vh;overflow:hidden}
+  /* the section fills the stage: 104 top + 79.67 head + 32 gap + mosaic + 40 bottom = 100vh */
+  .is-zoom #roles{height:100%;display:flex;flex-direction:column;justify-content:center;padding:104px 0 40px}
+  .is-zoom #roles .sec-head{margin-bottom:32px}
+  /* the mosaic is 650/1136 as tall as it is wide: size the wrap so it fits the height left over */
+  .is-zoom #roles .wrap{width:100%;max-width:min(2400px,calc((100vh - 256px)*1136/650 + 2*var(--gx)))}
+  /* the statement becomes a layer over the mosaic, revealed by main.js */
+  .is-zoom .statement{position:absolute;inset:0;height:auto;min-height:0;max-height:none;opacity:0;pointer-events:none}
+  .is-zoom .st-words>*{opacity:0}
+}
+
+/* ---------- soft reveal on scroll (#programs → .final) ----------
+   main.js marks headings and cards with .r and adds .in once 20% is on screen; cards carry their delay in --d.
+   Hidden only under html.js, so without JS everything shows. `translate` (not transform) leaves the
+   elements' own transforms alone, e.g. the button press. */
+@media (prefers-reduced-motion:no-preference){
+  .js .r{opacity:0;translate:0 24px;filter:blur(8px)}
+  .js .r.in,.js .in>.r{opacity:1;translate:none;filter:none;transition:opacity .7s var(--ease) var(--d,0ms),translate .7s var(--ease) var(--d,0ms),filter .7s var(--ease) var(--d,0ms)}
+  /* the final CTA keeps its hover and press transitions */
+  .js .in>.btn.r{transition:background .15s,transform .15s var(--ease),opacity .7s var(--ease) var(--d,0ms),translate .7s var(--ease) var(--d,0ms),filter .7s var(--ease) var(--d,0ms)}
 }
